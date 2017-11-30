@@ -13,12 +13,22 @@ The versions used in this example are:
 
 ## Requirements
 
-**Step 1**: You need a running instance of Apache Cassandra 3.11.1 with the following keyspaces and tables (TO DO adding sources):
+**Step 1**: You need a running instance of Apache Cassandra 3.11.1 with the following keyspaces and tables:
 - Keyspace: home_security
   - Tables: activity, home
 - Keyspace: vehicle_tracker
   - Tables: location
    
+You can create the keyspaces and tables using the file `db/create.cql` included in this project by changing current directory to the `db` folder and then running from the system prompt:
+
+```
+cqlsh -f create.cql
+```
+or running from within `cqlsh`:
+```
+SOURCE 'create.cql'
+```
+
 **Step 2**: Change the file `additional.conf` to set the following values:
    - `cassandra.contact-point`: an IP address of your Cassandra cluster
    - `googlemap.api-key`: the google maps API key in order to show data on a map
