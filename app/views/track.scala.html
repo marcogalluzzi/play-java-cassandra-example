@@ -1,0 +1,84 @@
+@import data.VehicleTrackingData
+@import com.typesafe.config.ConfigFactory
+@(trackData: VehicleTrackingData)
+
+@googleApiKey = @{
+    ConfigFactory.load("additional.conf").getString("googlemap.api-key")
+}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Track a Vehicle</title>
+        <style>
+                #map {
+                    height: 400px;
+                    width: 100%;
+                    background-color: grey;
+                }
+        </style>
+    </head>
+    <body>
+        <h1>Track a Vehicle</h1> Enter the track date and id of the vehicle you want to track
+        <p>&nbsp;</p>
+        <form id="form1" name="form1" method="get" action="">
+            <table>
+                <tr>
+                    <td>Vehicle id (e.g. FLN78197):</td>
+                    <td><input type="text" name="veh_id" id="veh_id" /></td>
+                </tr>
+                <tr>
+                    <td>Date (e.g. 2014-05-19):</td>
+                    <td><input type="text" name="date_val" id="date_val"/></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><input type="submit" name="submit" id="submit" value="Submit"/></td>
+                </tr>
+            </table>
+        </form>
+        <p>&nbsp;</p>
+
+        @if(trackData != null) {
+
+            @if(trackData.getLocations.isEmpty) {
+                <hr/>
+                <p>&nbsp;</p>
+                Sorry, no results for vehicle id "@trackData.getVehicleId" and date "@trackData.getDate"
+            } else {
+                <hr/>
+                <table cellpadding="4">
+                    <tr><td colspan="3"><h2>@trackData.getVehicleId</h2></td></tr>
+                    <tr><td><b>Date and Time</b></td><td><b>Latitude</b></td><td><b>Longitude</b></td></tr>
+
+                    @for(location <- trackData.getLocations) {
+                        <tr>
+                            <td>@location.getTimeAsString</td>
+                            <td>@location.getLatitudeAsString</td>
+                            <td>@location.getLongitudeAsString</td>
+                        </tr>
+                    }
+                </table>
+
+                <div id="map"></div>
+
+                <script>
+                        function initMap() {
+                            var uluru = {lat: @trackData.getFirstLocation.getLatitudeAsString, lng: @trackData.getFirstLocation.getLongitudeAsString};
+                            var map = new google.maps.Map(document.getElementById('map'), {
+                                zoom: 4,
+                                center: uluru
+                            });
+                            var marker = new google.maps.Marker({
+                                position: uluru,
+                                map: map,
+                                title: "Vehicle"
+                            });
+                        }
+                </script>
+                <script async defer src="https://maps.googleapis.com/maps/api/js?key=@googleApiKey&callback=initMap">
+                </script>
+            }
+        }
+    </body>
+</html>
